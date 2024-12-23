@@ -1,16 +1,12 @@
 import User from "../models/userModel.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import {
-  sendEmailVerificationLink,
-  // sendPasswordResetLink,
-} from "../utils/utils.js";
+import { sendEmailVerificationLink } from "../utils/utils.js";
 
 const createUser = async (req, res, next) => {
   const { first_name, last_name, email, password, isAuthor } = req.body;
 
   try {
-    // Check if any fields are empty
     if (!first_name || !last_name || !email || !password) {
       const error = new Error(
         "Please fill first_name, last_name, email, and password in the body"
@@ -27,7 +23,6 @@ const createUser = async (req, res, next) => {
       return next(error);
     }
 
-    // Check if a user is already registered with the same email
     const userExists = await User.findOne({ email });
     if (userExists) {
       const error = new Error("User already exists with this email");
@@ -35,14 +30,12 @@ const createUser = async (req, res, next) => {
       return next(error);
     }
 
-    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const token = jwt.sign({ email }, process.env.JWT_SECRET, {
       expiresIn: "2h",
     });
 
-    // Send verification email
     try {
       const verificationEmailResponse = await sendEmailVerificationLink(
         email,
@@ -56,7 +49,6 @@ const createUser = async (req, res, next) => {
         return next(error);
       }
 
-      // Create a new user and save to database
       const user = await User.create({
         first_name,
         last_name,
@@ -67,7 +59,6 @@ const createUser = async (req, res, next) => {
         isAuthor,
       });
 
-      // Return a success response
       return res.status(201).json({
         message:
           "Registered successfully. Please check your email for the verification link.",
@@ -80,40 +71,6 @@ const createUser = async (req, res, next) => {
   }
 };
 
-// const verifyEmail = async (req, res, next) => {
-//   try {
-//     console.log(req.params.verify_token);
-//     const user = await User.findOne({ verify_token: req.params.verify_token });
-//     if (!user) {
-//       return res.status(404).send("User not found so,Invalid token");
-//     } else if (user.verify_token_expires <= Date.now()) {
-//       if (!user.verified) {
-//         await user.deleteOne();
-//         return res
-//           .status(409)
-//           .send("Verification link is expired.Please register again");
-//       } else {
-//         return res.status(409).send("Please login to continue");
-//       }
-//     } else if (user.verified === true) {
-//       return res.status(200).json({
-//         status: "success",
-//         message: "Email already verified. Please login.",
-//       });
-//     } else {
-//       user.verified = true;
-//       await user.save();
-//       return res.status(201).json({
-//         status: "success",
-//         message: "Email verified successfully. Please login.",
-//       });
-//     }
-//   } catch (error) {
-//     return next(error);
-//   }
-// };
-
-// GPT
 const verifyEmail = async (req, res, next) => {
   try {
     const user = await User.findOne({ verify_token: req.params.verify_token });
@@ -153,7 +110,6 @@ const verifyEmail = async (req, res, next) => {
     return next(error);
   }
 };
-
 
 // 3. Login User
 const loginUser = async (req, res, next) => {

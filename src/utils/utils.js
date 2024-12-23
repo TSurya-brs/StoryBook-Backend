@@ -44,28 +44,4 @@ const sendEmailVerificationLink = async (email, token, name) => {
   }
 };
 
-//Password Reset link
-// const sendPasswordResetLink = async (email, token, name) => {
-//   try {
-//     const renderedContent = await ejs.renderFile(
-//       `${currentDirectory}/../templates/reset_password.ejs`,
-//       { token, name }
-//     );
-
-//     const mailOptions = {
-//       from: "surya.nyros@gmail.com",
-//       to: email,
-//       subject: "Storytime - Password Reset Link",
-//       html: renderedContent,
-//     };
-
-//     const verificationInfo = await mail.sendMail(mailOptions);
-//     console.log("Email sent successfully");
-//     return verificationInfo;
-//   } catch (error) {
-//     console.error("Error sending verification email:", error);
-//     return { error };
-//   }
-// };
-
 export { sendEmailVerificationLink };
